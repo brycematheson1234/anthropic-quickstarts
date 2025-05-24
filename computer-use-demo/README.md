@@ -83,11 +83,10 @@ Once the container is running, see the [Accessing the demo app](#accessing-the-d
 Note this option works for 2FA setups e.g. yubikey. It prompts 2FA first, then passes those credentials into docker.
 
 ```bash
+
+export AWS_PROFILE=%your_aws_role%
 eval $(aws configure export-credentials --format env)
 
-export AWS_ACCESS_KEY_ID=%your_aws_access_key%
-export AWS_SECRET_ACCESS_KEY=%your_aws_secret_access_key%
-export AWS_SESSION_TOKEN=%your_aws_session_token%
 docker run \
     -e API_PROVIDER=bedrock \
     -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
