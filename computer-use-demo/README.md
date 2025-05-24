@@ -80,7 +80,11 @@ Once the container is running, see the [Accessing the demo app](#accessing-the-d
 
 #### Option 2: Use an access key and secret
 
+Note this option works for 2FA setups e.g. yubikey. It prompts 2FA first, then passes those credentials into docker.
+
 ```bash
+eval $(aws configure export-credentials --format env)
+
 export AWS_ACCESS_KEY_ID=%your_aws_access_key%
 export AWS_SECRET_ACCESS_KEY=%your_aws_secret_access_key%
 export AWS_SESSION_TOKEN=%your_aws_session_token%
@@ -170,7 +174,11 @@ When implementing computer use yourself, we recommend using XGA resolution (1024
 docker build . -t computer-use-demo:local  # manually build the docker image (optional)
 export ANTHROPIC_API_KEY=%your_api_key%
 docker run \
-    -e ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY \
+    -e API_PROVIDER=bedrock \
+    -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+    -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+    -e AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN \
+    -e AWS_REGION=us-west-2 \
     -v $(pwd)/computer_use_demo:/home/computeruse/computer_use_demo/ `# mount local python module for development` \
     -v $HOME/.anthropic:/home/computeruse/.anthropic \
     -p 5900:5900 \
