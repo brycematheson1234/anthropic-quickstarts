@@ -4,10 +4,10 @@ from unittest.mock import patch
 import pytest
 
 from computer_use_demo.tools.base import CLIResult, ToolError, ToolResult
-from computer_use_demo.tools.edit import EditTool20241022, EditTool20250124
+from computer_use_demo.tools.edit import EditTool20241022, EditTool20250124, EditTool20250429
 
 
-@pytest.fixture(params=[EditTool20241022, EditTool20250124])
+@pytest.fixture(params=[EditTool20241022, EditTool20250124, EditTool20250429])
 def edit_tool(request):
     return request.param()
 
@@ -240,6 +240,11 @@ async def test_insert_command(edit_tool):
 
 @pytest.mark.asyncio
 async def test_undo_edit_command(edit_tool):
+    # Skip test for EditTool20250429 since it doesn't have undo_edit command
+    from computer_use_demo.tools.edit import EditTool20250429
+    if isinstance(edit_tool, EditTool20250429):
+        pytest.skip("EditTool20250429 does not support undo_edit command")
+    
     # Test undoing a str_replace operation
     with patch("pathlib.Path.exists", return_value=True), patch(
         "pathlib.Path.is_dir", return_value=False
@@ -284,6 +289,19 @@ async def test_undo_edit_command(edit_tool):
         "pathlib.Path.is_dir", return_value=False
     ):
         with pytest.raises(ToolError, match="No edit history found"):
+            await edit_tool(command="undo_edit", path="/test/file.txt")
+
+
+@pytest.mark.asyncio
+async def test_undo_edit_not_supported_in_20250429():
+    # Test that EditTool20250429 correctly raises an error for undo_edit command
+    from computer_use_demo.tools.edit import EditTool20250429
+    edit_tool = EditTool20250429()
+    
+    with patch("pathlib.Path.exists", return_value=True), patch(
+        "pathlib.Path.is_dir", return_value=False
+    ):
+        with pytest.raises(ToolError, match="Unrecognized command undo_edit"):
             await edit_tool(command="undo_edit", path="/test/file.txt")
 
 
